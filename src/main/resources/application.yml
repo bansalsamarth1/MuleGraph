@@ -1,6 +1,14 @@
 spring:
   application:
     name: mulegraph
+  servlet:
+    multipart:
+      max-request-size: 1MB
+      max-file-size: 1MB
+
+server:
+  tomcat:
+    max-http-form-post-size: 1MB
 
 management:
   endpoints:
@@ -12,3 +20,7 @@ management:
       probes:
         enabled: true
       show-details: always
+
+mulegraph:
+  api:
+    key: "dev-local-api-key"
