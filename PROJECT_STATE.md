@@ -1,28 +1,26 @@
 # MuleGraph Project State
 
 ## Active phase
-Phase 0 — Workspace, decisions, and tool verification
+Phase 1A — Spring Boot foundation
 
 ## Last verified commit
 not committed yet
 
 ## Completed acceptance criteria
-- Tool version commands executed and recorded.
-- No production code generated.
-- Architecture matches this file.
-- No Redis, Neo4j, Kubernetes, or microservice code added.
-- `PROJECT_STATE.md` lists blockers.
+- `./mvnw test` passes.
+- Readiness and liveness endpoints return healthy responses. (Tested via script)
+- No Kafka or PostgreSQL dependency yet.
 
 ## Failing or blocked criteria
-- None. Java 21 was initially missing but installed via brew.
+- None.
 
 ## Exact verification commands
 ```bash
-./scripts/demo/phase-0.sh
+./scripts/demo/phase-1a.sh
 ```
 
 ## Known limitations
 - None for this phase.
 
 ## Next allowed task
-Execute Phase 1A.
+Execute Phase 1B.
