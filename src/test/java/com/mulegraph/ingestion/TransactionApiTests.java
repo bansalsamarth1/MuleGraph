@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.UUID;
@@ -18,6 +19,9 @@ public class TransactionApiTests {
 
     @Autowired
     private MockMvc mockMvc;
+
+    @MockitoBean
+    private com.mulegraph.ingestion.port.TransactionPublisher transactionPublisher;
 
     private static final String API_KEY = "dev-local-api-key";
 
@@ -54,13 +58,13 @@ public class TransactionApiTests {
     }
 
     @Test
-    void testValidPayload_returns200() throws Exception {
+    void testValidPayload_returns202() throws Exception {
         mockMvc.perform(post("/api/v1/transactions")
                 .header("X-API-Key", API_KEY)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(buildValidPayload()))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.status").value("ACCEPTED_TEST_MODE"));
+                .andExpect(status().isAccepted())
+                .andExpect(jsonPath("$.status").value("ACCEPTED"));
     }
 
     @Test

@@ -49,13 +49,12 @@ public class TransactionController {
 
         publisher.publish(event);
 
-        // Not returning 202 yet since Kafka is absent
         TransactionResponse response = new TransactionResponse(
                 eventId,
                 request.transactionId(),
-                "ACCEPTED_TEST_MODE"
+                "ACCEPTED"
         );
 
-        return ResponseEntity.ok(response);
+        return ResponseEntity.accepted().body(response);
     }
 }

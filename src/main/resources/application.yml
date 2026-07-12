@@ -5,6 +5,15 @@ spring:
     multipart:
       max-request-size: 1MB
       max-file-size: 1MB
+  kafka:
+    producer:
+      bootstrap-servers: localhost:9092
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      acks: all
+      retries: 3
+      properties:
+        spring.json.add.type.headers: false
 
 server:
   tomcat:
