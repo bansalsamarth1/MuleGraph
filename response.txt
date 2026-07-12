@@ -1,0 +1,300 @@
+I created an **Antigravity-ready implementation bundle** based on the original MuleGraph source-of-truth document. 
+
+## Download the complete bundle
+
+[Download MuleGraph Antigravity Bundle](sandbox:/mnt/data/MuleGraph_Antigravity_Bundle.zip)
+
+It contains three files:
+
+### 1. Main project context
+
+[MuleGraph_CONTEXT.md](sandbox:/mnt/data/MuleGraph_CONTEXT.md)
+
+This is the primary source of truth for Antigravity. It includes:
+
+* Final MuleGraph architecture
+* Fixed technology decisions
+* API and event contracts
+* Kafka topics and partition keys
+* PostgreSQL and Neo4j models
+* Error, retry, idempotency and late-event policies
+* Repository structure
+* Agent operating rules
+* Phase-by-phase implementation roadmap
+* Acceptance criteria
+* Demonstration requirements
+* Kubernetes and Helm phase
+* CI/CD and portfolio-polish phase
+
+The implementation is divided into:
+
+```text
+Phase 0   Workspace and architecture verification
+
+Phase 1A  Spring Boot foundation
+Phase 1B  API contract and security
+Phase 1C  Reliable Kafka ingestion
+Phase 1D  PostgreSQL ledger projection
+
+Phase 2A  Kafka Streams foundation
+Phase 2B  Fan-out detection
+Phase 2C  Fan-in detection
+Phase 2D  Shared-device and shared-IP detection
+Phase 2E  Alert persistence and deduplication
+
+Phase 3   Neo4j graph projection
+Phase 4   Circular-flow confirmation
+Phase 5   Synthetic evaluation and real metrics
+Phase 6   Observability and reliability
+Phase 7   Kubernetes, kind and Helm
+Phase 8   CI/CD, security and portfolio polish
+```
+
+Each phase contains:
+
+* Exact goal
+* Implementation tasks
+* Acceptance criteria
+* Tests required
+* Failure scenarios
+* Demonstration steps
+* Evidence requirements
+* A stop gate preventing Antigravity from automatically starting the next phase
+
+---
+
+### 2. Antigravity workspace rules
+
+[MuleGraph_ANTIGRAVITY_WORKSPACE_RULES.md](sandbox:/mnt/data/MuleGraph_ANTIGRAVITY_WORKSPACE_RULES.md)
+
+Paste this into an **Antigravity Workspace Rule**.
+
+It prevents the agent from:
+
+* Generating the full repository at once
+* Adding future-phase technologies early
+* Inventing test results
+* Inventing dependency versions
+* Claiming a deployment worked without running it
+* Claiming exactly-once processing across databases
+* Weakening tests merely to make them pass
+* Adding unnecessary microservices
+* Adding Redis or machine learning without justification
+* Moving to another phase automatically
+
+Antigravity officially supports workspace-specific rules as Markdown files, and its documentation currently limits each rule file to 12,000 characters. The rules file I created is safely below that limit. ([Google Antigravity][1])
+
+---
+
+### 3. Ready-to-use phase prompts
+
+[MuleGraph_PHASE_PROMPTS.md](sandbox:/mnt/data/MuleGraph_PHASE_PROMPTS.md)
+
+This provides copy-paste prompts for every implementation phase.
+
+For example, the Phase 1C prompt explicitly tells Antigravity to:
+
+* Add Kafka only
+* Use KRaft mode
+* Publish to `transactions.raw`
+* Key records by `transaction_id`
+* Wait for Kafka acknowledgement
+* Return a non-202 response when Kafka is unavailable
+* Use Testcontainers
+* Run the positive and failure demonstrations
+* Preserve actual command outputs
+* Stop before adding PostgreSQL
+
+This ensures the agent receives a narrow task rather than a vague instruction such as “build MuleGraph.”
+
+---
+
+# How to set it up in Antigravity
+
+## Step 1: Create the project folder
+
+Create an empty folder:
+
+```text
+MuleGraph
+```
+
+Extract these files into it:
+
+```text
+MuleGraph/
+├── MuleGraph_CONTEXT.md
+├── MuleGraph_ANTIGRAVITY_WORKSPACE_RULES.md
+└── MuleGraph_PHASE_PROMPTS.md
+```
+
+## Step 2: Create an Antigravity project
+
+In Antigravity:
+
+```text
+Select Project
+→ New Project
+→ Add Folder
+→ Select the MuleGraph folder
+```
+
+Antigravity projects provide the agent access to the selected folders and allow project-specific security and behaviour settings. ([Google Codelabs][2])
+
+## Step 3: Configure safer project behaviour
+
+For the initial phases, use settings similar to:
+
+```text
+Security preset:
+Review terminal commands and sensitive file operations
+
+Agent behaviour:
+Review implementation plans before execution
+
+Artifact review:
+Require review for implementation plans
+```
+
+Antigravity supports project-level permissions and implementation-plan review controls. ([Google Codelabs][2])
+
+## Step 4: Add the workspace rule
+
+Open:
+
+```text
+Customizations
+→ Rules
+→ Workspace
+→ Add Workspace Rule
+```
+
+Paste the complete contents of:
+
+```text
+MuleGraph_ANTIGRAVITY_WORKSPACE_RULES.md
+```
+
+## Step 5: Start with Phase 0 only
+
+Copy the **Initial project prompt** from `MuleGraph_PHASE_PROMPTS.md`.
+
+It instructs Antigravity to:
+
+* Read the context completely
+* Verify Java, Docker, Git and Python
+* Record actual versions
+* Create architecture documentation
+* Create `PROJECT_STATE.md`
+* Produce evidence
+* Avoid generating Spring Boot code
+* Stop after Phase 0
+
+---
+
+# How you will know every phase is working
+
+Every phase must create:
+
+```text
+docs/evidence/phase-N/README.md
+scripts/demo/phase-N.ps1
+```
+
+The evidence document must record:
+
+```text
+Commands executed
+Expected output
+Actual output
+Test count
+Database queries
+Kafka evidence
+Failure behaviour
+Known limitations
+Cleanup commands
+```
+
+Examples of the demonstrations included in the context:
+
+### Kafka ingestion demonstration
+
+```text
+Send valid request
+→ receive 202
+→ consume exact event from Kafka
+
+Stop Kafka
+→ send request
+→ prove API does not return 202
+```
+
+### Ledger idempotency demonstration
+
+```text
+Send transaction
+→ PostgreSQL row count = 1
+
+Replay same event twice
+→ PostgreSQL row count remains 1
+```
+
+### Fan-out demonstration
+
+```text
+A → B
+A → C
+A → D
+A → E
+A → F
+
+within 60 seconds
+→ exactly one FAN_OUT candidate
+```
+
+### Fan-in distinction demonstration
+
+```text
+A → X repeated five times
+→ one distinct source
+→ no five-source fan-in
+
+A → X
+B → X
+C → X
+D → X
+E → X
+→ fan-in candidate
+```
+
+### Neo4j failure demonstration
+
+```text
+Stop Neo4j
+→ ingestion continues
+→ Kafka backlog grows
+
+Restart Neo4j
+→ graph projector catches up
+```
+
+### Kubernetes demonstration
+
+```text
+Create kind cluster
+Install MuleGraph using Helm
+Delete API pod
+Observe automatic replacement
+Perform rolling update
+Scale consumer projector
+Explain partition-count limit
+Stop Neo4j
+Observe backlog and recovery
+```
+
+Antigravity’s workflow produces implementation-plan, task-list and walkthrough artifacts, which fits this evidence-driven development approach well. ([Google Codelabs][2])
+
+The correct first action is to extract the bundle, add the workspace rule, and run only the **Initial project prompt for Phase 0**.
+
+[1]: https://antigravity.google/docs/rules-workflows?utm_source=chatgpt.com "Rules / Workflows"
+[2]: https://codelabs.developers.google.com/getting-started-google-antigravity "Getting Started with Google Antigravity  |  Google Codelabs"
