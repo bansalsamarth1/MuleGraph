@@ -42,3 +42,11 @@ mulegraph:
       window-seconds: 60
       grace-seconds: 15
       min-distinct-sources: 5
+    shared-device:
+      window-seconds: 60
+      grace-seconds: 15
+      min-distinct-sources: 3
+    shared-ip:
+      window-seconds: 60
+      grace-seconds: 15
+      min-distinct-sources: 3
