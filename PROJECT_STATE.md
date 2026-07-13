@@ -1,13 +1,13 @@
 # MuleGraph Project State
 
 ## Active phase
-Phase 2E — Alert Projection and Persistence
+Pre-Phase-3 Final Gate
 
 ## Last verified commit
 not committed yet
 
 ## Current Phase
-Phase 2 (Fraud Detection Topologies) is active. Alert Deduplication logic and Threshold properties are implemented and tested. Phase 1D (Ledger & Validation) was successfully retrofitted and verified.
+Phase 2 (Fraud Detection Topologies) is completed. Alert Deduplication logic, optional device/IP logic, and transaction idempotency are fully implemented and tested. Phase 1D (Ledger & Validation) was successfully retrofitted and verified.
 
 ## Progress
 - [x] Phase 1A: Domain, API, and Basic Ingestion
@@ -16,44 +16,32 @@ Phase 2 (Fraud Detection Topologies) is active. Alert Deduplication logic and Th
 - [x] Phase 1D: Validation pipeline (TransactionNormalizationTopology)
 - [x] Phase 2: Fraud Detection Topologies (FanOut, FanIn, SharedDevice, SharedIp)
 - [x] Alert Deduplication via ON CONFLICT DO NOTHING
+- [x] Final Pre-Phase-3 Architectural Validation and Testcontainers fix
 - [ ] Phase 3: Neo4j and Complex Queries
 
 ## Completed acceptance criteria
 - Configured Postgres using Docker Compose (`mulegraph-postgres` on port 5432).
-- Enabled Flyway with migration scripts `V1__Create_Transaction_Tables.sql` and `V2__Create_Alert_Tables.sql`.
-- Added `AlertProjector` component with `@KafkaListener(topics = "fraud.alerts")`.
-- Idempotently inserted incoming `AlertEvent` into `alerts` table.
+- Added `AlertProjector` component with `@KafkaListener(topics = "fraud.alerts")` using strict `deduplication_key` idempotency.
 - Idempotently inserted corresponding `involvedAccounts` into `alert_accounts` mapping table.
 - Idempotently inserted corresponding `transactionIds` into `alert_transactions` mapping table.
-- Adjusted Kafka Streams properties (`commit.interval.ms: 1000`) to guarantee prompt local emission.
-- Fixed `TransactionTimestampExtractor` to safely handle `FraudCandidateEvent`.
-- Verified persistence flow locally using `./scripts/demo/phase-2e.sh`.
+- Relaxed ledger `device_id` and `ip_hash` constraints to allow missing (optional) data, filtering correctly in topology streams.
+- Ensured strict `transaction_id` payload conflict rejection in `TransactionProjector`.
+- Successfully resolved Docker API `400 Bad Request` blocker by upgrading Testcontainers to version `1.21.4`.
+- All integration and unit tests pass with exactly 0 `@Disabled` required tests.
+- Executed `pre-phase-3-gate.sh` successfully with a clean environment (`docker compose down -v`).
 
 ## Failing or blocked criteria
-### Status: BLOCKED
-
-### Known Blocker:
-Docker Desktop API `1.54` incompatibility with `docker-java` 3.4.0 (Testcontainers 1.20.4).
-- Testcontainers fails to execute `/info` and image pulls (`ContainerFetch`) due to Docker Desktop rejecting older API versions (`BadRequestException Status 400`).
-- User provided workaround `TESTCONTAINERS_RYUK_DISABLED=true` (via `src/test/resources/testcontainers.properties`) was applied but does not resolve the `docker-java` 400 Bad Request exception.
-- Per strict rules, I am reporting this blocker clearly and leaving the phase incomplete rather than skipping the tests or replacing them with mocks.
-
-### Completed Work Before Blocker:
-- [x] Restored `transactions.invalid` validation pipeline (Phase 1D).
-- [x] Implemented Dead-Letter logic via `@KafkaListener` error handlers and Streams `DeserializationExceptionHandler`.
-- [x] Refactored `AlertProjector` to use `INSERT ... ON CONFLICT DO NOTHING` + `SELECT id` for strict deduplication lookup.
-- [x] Added `ConflictingTransactionException` logic to `TransactionProjector` to ensure identical payload for same `transaction_id`.
-- [x] Fixed topology keys, disabled Kafka Streams in test contexts appropriately, and fixed `TopologyTestDriver` concurrent state-dir clashes.
-- [x] Generated validation scripts in `scripts/demo/` and populated `docs/evidence/`.
+None.
 
 ## Exact verification commands
 ```bash
+./mvnw clean verify
 ./scripts/demo/pre-phase-3-gate.sh
 ```
 
 ## Known limitations
-- Testcontainers tests fail due to host Docker API version incompatibility.
-- Still using synthetic currency (INR) and dummy API authentication.
+- Still using synthetic currency (USD/INR) and dummy API authentication.
+- No historical load testing has been performed.
 
 ## Next allowed task
-Resolve the Docker API mismatch blocker before starting Neo4j (Phase 3).
+Start Phase 3: Neo4j and Complex Queries.

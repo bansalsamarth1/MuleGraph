@@ -8,6 +8,12 @@ docker compose down -v
 docker compose up -d
 sleep 15
 
+echo "Starting MuleGraph Application..."
+JAVA_HOME=/opt/homebrew/opt/openjdk@21/libexec/openjdk.jdk/Contents/Home ./mvnw spring-boot:run > app.log 2>&1 &
+APP_PID=$!
+echo "Waiting for Application to start..."
+sleep 20
+
 echo -e "\n2. Exact Transaction Replay"
 TX_ID="55555555-5555-5555-5555-555555555555"
 DATA='{
@@ -52,3 +58,6 @@ curl -s -X POST http://localhost:8080/v1/transactions \
 echo "Conflict insert sent. Should be routed to dead-letter."
 
 echo -e "\nGate demo commands executed."
+echo "Shutting down Application..."
+kill $APP_PID
+

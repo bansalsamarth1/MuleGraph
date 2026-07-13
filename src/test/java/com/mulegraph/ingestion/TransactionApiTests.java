@@ -26,7 +26,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest(properties = {
         "spring.flyway.enabled=false",
-        "spring.kafka.listener.auto-startup=false"
+        "spring.kafka.listener.auto-startup=false",
+        "spring.kafka.streams.auto-startup=false",
+        "management.health.kafka.enabled=false"
 })
 @AutoConfigureMockMvc
 public class TransactionApiTests {

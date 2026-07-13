@@ -134,4 +134,57 @@ class TransactionRekeyingTopologyTest {
         assertEquals(ipHash, ipRecord.key());
         assertEquals(event.eventId(), ipRecord.value().eventId());
     }
+
+    @Test
+    void shouldHandleMissingDeviceAndIp() {
+        InternalTransactionEvent event = createEvent(null, null);
+        inputTopic.pipeInput("null-key", event);
+
+        // Source and destination should still be emitted
+        assertEquals(1, sourceTopic.getQueueSize());
+        assertEquals(1, destinationTopic.getQueueSize());
+
+        // Device and IP topics should be empty
+        assertEquals(0, deviceTopic.getQueueSize(), "Should not emit to device topic if deviceId is null");
+        assertEquals(0, ipTopic.getQueueSize(), "Should not emit to IP topic if ipHash is null");
+    }
+
+    @Test
+    void shouldHandleDeviceOnly() {
+        String deviceId = "device-123";
+        InternalTransactionEvent event = createEvent(deviceId, null);
+        inputTopic.pipeInput("null-key", event);
+
+        assertEquals(1, deviceTopic.getQueueSize());
+        assertEquals(deviceId, deviceTopic.readRecord().key());
+        assertEquals(0, ipTopic.getQueueSize());
+    }
+
+    @Test
+    void shouldHandleIpOnly() {
+        String ipHash = "hash-123";
+        InternalTransactionEvent event = createEvent(null, ipHash);
+        inputTopic.pipeInput("null-key", event);
+
+        assertEquals(0, deviceTopic.getQueueSize());
+        assertEquals(1, ipTopic.getQueueSize());
+        assertEquals(ipHash, ipTopic.readRecord().key());
+    }
+
+    private InternalTransactionEvent createEvent(String deviceId, String ipHash) {
+        return new InternalTransactionEvent(
+                UUID.randomUUID(),
+                UUID.randomUUID(),
+                1,
+                UUID.randomUUID().toString(),
+                UUID.randomUUID(),
+                UUID.randomUUID(),
+                10000L,
+                "USD",
+                deviceId,
+                ipHash,
+                Instant.now().minusSeconds(10),
+                Instant.now()
+        );
+    }
 }

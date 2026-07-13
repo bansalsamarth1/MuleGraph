@@ -72,4 +72,37 @@ class TransactionProjectorTest {
         assertThrows(ConflictingTransactionException.class, () -> projector.project(event2), 
             "Should throw ConflictingTransactionException when payload/identity differs");
     }
+
+    @Test
+    void testTransactionWithMissingDeviceAndIp() {
+        UUID txId = UUID.randomUUID();
+        UUID eventId = UUID.randomUUID();
+        InternalTransactionEvent event = new InternalTransactionEvent(eventId, txId, 1, "SYSTEM_A", UUID.randomUUID(), UUID.randomUUID(), 1000L, "USD", null, null, Instant.now(), Instant.now());
+        
+        projector.project(event);
+        Long count = jdbcTemplate.queryForObject("SELECT count(*) FROM transactions WHERE transaction_id = ?", Long.class, txId);
+        assertEquals(1, count, "Should successfully project transaction with null device and ip");
+    }
+
+    @Test
+    void testTransactionWithDeviceOnly() {
+        UUID txId = UUID.randomUUID();
+        UUID eventId = UUID.randomUUID();
+        InternalTransactionEvent event = new InternalTransactionEvent(eventId, txId, 1, "SYSTEM_A", UUID.randomUUID(), UUID.randomUUID(), 1000L, "USD", "device1", null, Instant.now(), Instant.now());
+        
+        projector.project(event);
+        Long count = jdbcTemplate.queryForObject("SELECT count(*) FROM transactions WHERE transaction_id = ?", Long.class, txId);
+        assertEquals(1, count, "Should successfully project transaction with device but null ip");
+    }
+
+    @Test
+    void testTransactionWithIpOnly() {
+        UUID txId = UUID.randomUUID();
+        UUID eventId = UUID.randomUUID();
+        InternalTransactionEvent event = new InternalTransactionEvent(eventId, txId, 1, "SYSTEM_A", UUID.randomUUID(), UUID.randomUUID(), 1000L, "USD", null, "ip1", Instant.now(), Instant.now());
+        
+        projector.project(event);
+        Long count = jdbcTemplate.queryForObject("SELECT count(*) FROM transactions WHERE transaction_id = ?", Long.class, txId);
+        assertEquals(1, count, "Should successfully project transaction with ip but null device");
+    }
 }

@@ -52,6 +52,9 @@ class AlertProjectorTest {
 
     @Test
     void testIdempotentAlertProjection() {
+        System.out.println("DOCKER_API_VERSION = " + System.getenv("DOCKER_API_VERSION"));
+        System.out.println("DOCKER_HOST = " + System.getenv("DOCKER_HOST"));
+        System.out.println("ryuk.disabled = " + System.getProperty("ryuk.disabled"));
         UUID alertId = UUID.randomUUID();
         UUID account1 = UUID.randomUUID();
         UUID account2 = UUID.randomUUID();
