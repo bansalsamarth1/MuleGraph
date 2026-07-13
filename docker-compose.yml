@@ -19,3 +19,18 @@ services:
       KAFKA_CONTROLLER_LISTENER_NAMES: 'CONTROLLER'
       KAFKA_LOG_DIRS: '/tmp/kraft-combined-logs'
       CLUSTER_ID: 'MkU3OEVBNTcwNTJENDM2Qk'
+
+  mulegraph-postgres:
+    image: postgres:15-alpine
+    container_name: mulegraph-postgres
+    environment:
+      POSTGRES_DB: mulegraph
+      POSTGRES_USER: muleuser
+      POSTGRES_PASSWORD: mulepass
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U muleuser -d mulegraph"]
+      interval: 5s
+      timeout: 5s
+      retries: 5

@@ -52,6 +52,7 @@ public class SharedIpTopology {
                         (key, event, state) -> {
                             boolean wasEmitted = state.isCandidateEmitted();
                             state.getSources().add(event.sourceAccountId());
+                            state.getTransactionIds().add(event.transactionId());
                             state.setTransactionCount(state.getTransactionCount() + 1);
                             state.setTotalAmountMinor(state.getTotalAmountMinor() + event.amountMinor());
 
@@ -90,6 +91,8 @@ public class SharedIpTopology {
                                 state.getTransactionCount(),
                                 state.getTotalAmountMinor(),
                                 "INR", // synthetic currency
+                                state.getSources(),
+                                state.getTransactionIds(),
                                 Instant.now()
                         );
                         return KeyValue.pair(windowedKey.key(), candidate);

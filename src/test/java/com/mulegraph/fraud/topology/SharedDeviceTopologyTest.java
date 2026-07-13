@@ -103,6 +103,8 @@ class SharedDeviceTopologyTest {
         
         UUID expectedDeviceUuid = UUID.nameUUIDFromBytes(deviceId.getBytes());
         assertEquals(expectedDeviceUuid, candidate.primaryAccountId());
+        assertEquals(3, candidate.involvedAccounts().size());
+        assertEquals(3, candidate.transactionIds().size());
 
         // Piping 4th should NOT trigger another candidate for the same window
         inputTopic.pipeInput(

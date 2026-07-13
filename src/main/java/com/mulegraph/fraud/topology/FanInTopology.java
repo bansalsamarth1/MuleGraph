@@ -52,6 +52,7 @@ public class FanInTopology {
                         (key, event, state) -> {
                             boolean wasEmitted = state.isCandidateEmitted();
                             state.getSources().add(event.sourceAccountId());
+                            state.getTransactionIds().add(event.transactionId());
                             state.setTransactionCount(state.getTransactionCount() + 1);
                             state.setTotalAmountMinor(state.getTotalAmountMinor() + event.amountMinor());
 
@@ -70,23 +71,26 @@ public class FanInTopology {
                 .toStream()
                 .map((windowedKey, state) -> {
                     if (state.isThresholdCrossed()) {
-                        UUID primaryAccountId = UUID.fromString(windowedKey.key());
+                        String destinationAccountId = windowedKey.key();
                         Instant windowStart = windowedKey.window().startTime();
                         Instant windowEnd = windowedKey.window().endTime();
 
-                        String uniqueString = String.format("FAN_IN-%s-%d", primaryAccountId, windowStart.toEpochMilli());
+                        String uniqueString = String.format("FAN_IN-%s-%d", destinationAccountId, windowStart.toEpochMilli());
                         UUID candidateId = UUID.nameUUIDFromBytes(uniqueString.getBytes());
+                        UUID destUuid = UUID.fromString(destinationAccountId);
 
                         FraudCandidateEvent candidate = new FraudCandidateEvent(
                                 candidateId,
                                 "FAN_IN",
-                                primaryAccountId,
+                                destUuid,
                                 windowStart,
                                 windowEnd,
                                 state.getSources().size(),
                                 state.getTransactionCount(),
                                 state.getTotalAmountMinor(),
                                 "INR", // synthetic currency
+                                state.getSources(),
+                                state.getTransactionIds(),
                                 Instant.now()
                         );
                         return KeyValue.pair(windowedKey.key(), candidate);

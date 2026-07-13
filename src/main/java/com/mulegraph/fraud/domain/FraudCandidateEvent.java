@@ -3,6 +3,7 @@ package com.mulegraph.fraud.domain;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.time.Instant;
+import java.util.Set;
 import java.util.UUID;
 
 public record FraudCandidateEvent(
@@ -32,6 +33,12 @@ public record FraudCandidateEvent(
 
         @JsonProperty("currency")
         String currency,
+
+        @JsonProperty("involved_accounts")
+        Set<UUID> involvedAccounts,
+
+        @JsonProperty("transaction_ids")
+        Set<UUID> transactionIds,
 
         @JsonProperty("generated_at")
         Instant generatedAt

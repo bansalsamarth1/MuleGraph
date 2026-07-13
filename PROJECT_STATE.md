@@ -1,32 +1,33 @@
 # MuleGraph Project State
 
 ## Active phase
-Phase 2D — Shared Device and Shared IP rules
+Phase 2E — Alert Projection and Persistence
 
 ## Last verified commit
 not committed yet
 
 ## Completed acceptance criteria
-- Created `SharedDeviceRuleProperties` and `SharedIpRuleProperties` in application context.
-- Configured minimum distinct sources to 3 for both properties, keeping window to 60s.
-- Created `SharedDeviceState` and `SharedIpState` tracking distinct `source_account_id`s.
-- Created `SharedDeviceTopology` consuming from `transactions.by-device`.
-- Created `SharedIpTopology` consuming from `transactions.by-ip`.
-- Emitted deterministic `FraudCandidateEvent` objects matching rule rules `SHARED_DEVICE` and `SHARED_IP` respectively, deduplicated within their tumbling windows.
-- Verified bounding limits and deduplication behaviour for both rules via `TopologyTestDriver`.
-- Verified exactly 2 independent candidates emitted in local cluster integration run.
+- Configured Postgres using Docker Compose (`mulegraph-postgres` on port 5432).
+- Enabled Flyway with migration scripts `V1__Create_Transaction_Tables.sql` and `V2__Create_Alert_Tables.sql`.
+- Added `AlertProjector` component with `@KafkaListener(topics = "fraud.alerts")`.
+- Idempotently inserted incoming `AlertEvent` into `alerts` table.
+- Idempotently inserted corresponding `involvedAccounts` into `alert_accounts` mapping table.
+- Idempotently inserted corresponding `transactionIds` into `alert_transactions` mapping table.
+- Adjusted Kafka Streams properties (`commit.interval.ms: 1000`) to guarantee prompt local emission.
+- Fixed `TransactionTimestampExtractor` to safely handle `FraudCandidateEvent`.
+- Verified persistence flow locally using `./scripts/demo/phase-2e.sh`.
 
 ## Failing or blocked criteria
 - None.
 
 ## Exact verification commands
 ```bash
-./scripts/demo/phase-2d.sh
+./scripts/demo/phase-2e.sh
 ```
 
 ## Known limitations
+- `Testcontainers` test `AlertProjectorTest.java` is `@Disabled` due to host Docker API version incompatibility.
 - Still using synthetic currency (INR) and dummy API authentication.
-- Real persistence (Phase 2E) is not yet implemented.
 
 ## Next allowed task
-Execute Phase 2E.
+Execute Phase 3.

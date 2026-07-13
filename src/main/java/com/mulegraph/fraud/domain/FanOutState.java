@@ -6,6 +6,7 @@ import java.util.UUID;
 
 public class FanOutState {
     private Set<UUID> destinations = new HashSet<>();
+    private Set<UUID> transactionIds = new HashSet<>();
     private long transactionCount = 0;
     private long totalAmountMinor = 0;
     private boolean candidateEmitted = false;
@@ -14,8 +15,9 @@ public class FanOutState {
     public FanOutState() {
     }
 
-    public FanOutState(Set<UUID> destinations, long transactionCount, long totalAmountMinor, boolean candidateEmitted) {
+    public FanOutState(Set<UUID> destinations, Set<UUID> transactionIds, long transactionCount, long totalAmountMinor, boolean candidateEmitted) {
         this.destinations = destinations;
+        this.transactionIds = transactionIds;
         this.transactionCount = transactionCount;
         this.totalAmountMinor = totalAmountMinor;
         this.candidateEmitted = candidateEmitted;
@@ -27,6 +29,14 @@ public class FanOutState {
 
     public void setDestinations(Set<UUID> destinations) {
         this.destinations = destinations;
+    }
+
+    public Set<UUID> getTransactionIds() {
+        return transactionIds;
+    }
+
+    public void setTransactionIds(Set<UUID> transactionIds) {
+        this.transactionIds = transactionIds;
     }
 
     public long getTransactionCount() {

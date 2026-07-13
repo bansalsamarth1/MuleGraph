@@ -6,6 +6,7 @@ import java.util.UUID;
 
 public class SharedIpState {
     private Set<UUID> sources = new HashSet<>();
+    private Set<UUID> transactionIds = new HashSet<>();
     private long transactionCount = 0;
     private long totalAmountMinor = 0;
     private boolean candidateEmitted = false;
@@ -14,8 +15,9 @@ public class SharedIpState {
     public SharedIpState() {
     }
 
-    public SharedIpState(Set<UUID> sources, long transactionCount, long totalAmountMinor, boolean candidateEmitted) {
+    public SharedIpState(Set<UUID> sources, Set<UUID> transactionIds, long transactionCount, long totalAmountMinor, boolean candidateEmitted) {
         this.sources = sources;
+        this.transactionIds = transactionIds;
         this.transactionCount = transactionCount;
         this.totalAmountMinor = totalAmountMinor;
         this.candidateEmitted = candidateEmitted;
@@ -27,6 +29,14 @@ public class SharedIpState {
 
     public void setSources(Set<UUID> sources) {
         this.sources = sources;
+    }
+
+    public Set<UUID> getTransactionIds() {
+        return transactionIds;
+    }
+
+    public void setTransactionIds(Set<UUID> transactionIds) {
+        this.transactionIds = transactionIds;
     }
 
     public long getTransactionCount() {

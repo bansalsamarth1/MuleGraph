@@ -22,20 +22,36 @@ public class TransactionTimestampExtractor implements TimestampExtractor {
         }
 
         try {
-            InternalTransactionEvent event;
+            InternalTransactionEvent event = null;
+            com.mulegraph.fraud.domain.FraudCandidateEvent candidateEvent = null;
             if (record.value() instanceof InternalTransactionEvent) {
                 event = (InternalTransactionEvent) record.value();
+            } else if (record.value() instanceof com.mulegraph.fraud.domain.FraudCandidateEvent) {
+                candidateEvent = (com.mulegraph.fraud.domain.FraudCandidateEvent) record.value();
             } else if (record.value() instanceof String) {
-                event = objectMapper.readValue((String) record.value(), InternalTransactionEvent.class);
+                String strVal = (String) record.value();
+                if (strVal.contains("\"candidate_id\"")) {
+                    candidateEvent = objectMapper.readValue(strVal, com.mulegraph.fraud.domain.FraudCandidateEvent.class);
+                } else {
+                    event = objectMapper.readValue(strVal, InternalTransactionEvent.class);
+                }
             } else if (record.value() instanceof byte[]) {
-                event = objectMapper.readValue((byte[]) record.value(), InternalTransactionEvent.class);
+                byte[] byteVal = (byte[]) record.value();
+                String strVal = new String(byteVal);
+                if (strVal.contains("\"candidate_id\"")) {
+                    candidateEvent = objectMapper.readValue(byteVal, com.mulegraph.fraud.domain.FraudCandidateEvent.class);
+                } else {
+                    event = objectMapper.readValue(byteVal, InternalTransactionEvent.class);
+                }
             } else {
                 log.warn("Unknown value type for timestamp extraction: {}", record.value().getClass());
                 return partitionTime;
             }
 
-            if (event.occurredAt() != null) {
+            if (event != null && event.occurredAt() != null) {
                 return event.occurredAt().toEpochMilli();
+            } else if (candidateEvent != null && candidateEvent.generatedAt() != null) {
+                return candidateEvent.generatedAt().toEpochMilli();
             }
 
         } catch (IOException e) {

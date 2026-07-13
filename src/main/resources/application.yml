@@ -12,9 +12,23 @@ spring:
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
       acks: all
       retries: 3
+    consumer:
+      bootstrap-servers: localhost:9092
       properties:
-        spring.json.add.type.headers: false
-
+        spring.json.trusted.packages: "com.mulegraph.*"
+        spring.json.value.default.type: "com.mulegraph.fraud.domain.AlertEvent"
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+    streams:
+      properties:
+        commit.interval.ms: 1000
+        cache.max.bytes.buffering: 0
+  datasource:
+    url: jdbc:postgresql://localhost:5432/mulegraph
+    username: muleuser
+    password: mulepass
+  flyway:
+    enabled: true
 server:
   tomcat:
     max-http-form-post-size: 1MB

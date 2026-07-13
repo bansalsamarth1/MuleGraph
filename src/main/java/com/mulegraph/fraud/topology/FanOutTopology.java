@@ -58,9 +58,10 @@ public class FanOutTopology {
                         (key, event, state) -> {
                             boolean wasEmitted = state.isCandidateEmitted();
                             state.getDestinations().add(event.destinationAccountId());
+                            state.getTransactionIds().add(event.transactionId());
                             state.setTransactionCount(state.getTransactionCount() + 1);
                             state.setTotalAmountMinor(state.getTotalAmountMinor() + event.amountMinor());
-                            
+
                             if (!wasEmitted && state.getDestinations().size() >= properties.getMinDistinctDestinations()) {
                                 state.setCandidateEmitted(true);
                                 state.setThresholdCrossed(true);
@@ -74,16 +75,16 @@ public class FanOutTopology {
                                 .withValueSerde(stateSerde)
                 )
                 .toStream()
-                // Transform to Candidate exactly when threshold is breached for the first time
                 .map((windowedKey, state) -> {
                     if (state.isThresholdCrossed()) {
-                        UUID primaryAccountId = UUID.fromString(windowedKey.key());
+                        String sourceAccountId = windowedKey.key();
                         Instant windowStart = windowedKey.window().startTime();
                         Instant windowEnd = windowedKey.window().endTime();
-                        
-                        String uniqueString = String.format("FAN_OUT-%s-%d", primaryAccountId, windowStart.toEpochMilli());
+
+                        String uniqueString = String.format("FAN_OUT-%s-%d", sourceAccountId, windowStart.toEpochMilli());
                         UUID candidateId = UUID.nameUUIDFromBytes(uniqueString.getBytes());
-                        
+                        UUID primaryAccountId = UUID.fromString(sourceAccountId);
+
                         FraudCandidateEvent candidate = new FraudCandidateEvent(
                                 candidateId,
                                 "FAN_OUT",
@@ -94,6 +95,8 @@ public class FanOutTopology {
                                 state.getTransactionCount(),
                                 state.getTotalAmountMinor(),
                                 "INR", // synthetic currency
+                                state.getDestinations(),
+                                state.getTransactionIds(),
                                 Instant.now()
                         );
                         return KeyValue.pair(windowedKey.key(), candidate);

@@ -102,6 +102,8 @@ class FanOutTopologyTest {
         assertEquals(5, candidate.distinctAccountsCount());
         assertEquals("FAN_OUT", candidate.ruleType());
         assertEquals(source, candidate.primaryAccountId());
+        assertEquals(5, candidate.involvedAccounts().size());
+        assertEquals(5, candidate.transactionIds().size());
 
         // Piping 6th should NOT trigger another candidate for the same window
         inputTopic.pipeInput(
