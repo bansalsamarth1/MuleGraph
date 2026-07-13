@@ -30,12 +30,14 @@ public class TransactionRekeyingTopology {
         rawStream.selectKey((k, v) -> v.destinationAccountId().toString())
                 .to("transactions.by-destination", Produced.with(Serdes.String(), eventSerde));
 
-        // Rekey by device ID
-        rawStream.selectKey((k, v) -> v.deviceId())
-                .to("transactions.by-device", Produced.with(Serdes.String(), eventSerde));
+        // Rekey by device ID, only if deviceId is present
+        rawStream.filter((k, v) -> v.deviceId() != null && !v.deviceId().isBlank())
+                 .selectKey((k, v) -> v.deviceId())
+                 .to("activity.by-device", Produced.with(Serdes.String(), eventSerde));
 
-        // Rekey by IP Hash
-        rawStream.selectKey((k, v) -> v.ipHash())
-                .to("transactions.by-ip", Produced.with(Serdes.String(), eventSerde));
+        // Rekey by IP Hash, only if ipHash is present
+        rawStream.filter((k, v) -> v.ipHash() != null && !v.ipHash().isBlank())
+                 .selectKey((k, v) -> v.ipHash())
+                 .to("activity.by-ip", Produced.with(Serdes.String(), eventSerde));
     }
 }

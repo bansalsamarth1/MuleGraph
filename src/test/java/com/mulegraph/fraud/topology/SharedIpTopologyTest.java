@@ -48,7 +48,7 @@ class SharedIpTopologyTest {
         testDriver = new TopologyTestDriver(builder.build(), props);
 
         inputTopic = testDriver.createInputTopic(
-                "transactions.by-ip",
+                "activity.by-ip",
                 new StringSerializer(),
                 new JsonSerializer<>()
         );

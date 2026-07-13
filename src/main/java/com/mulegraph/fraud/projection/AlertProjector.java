@@ -37,6 +37,17 @@ public class AlertProjector {
                 java.sql.Timestamp.from(alert.generatedAt())
         );
 
+        // Always retrieve the canonical stored alert ID
+        java.util.UUID canonicalAlertId = jdbcTemplate.queryForObject(
+                "SELECT alert_id FROM alerts WHERE deduplication_key = ?",
+                java.util.UUID.class,
+                alert.deduplicationKey()
+        );
+        
+        if (!canonicalAlertId.equals(alert.alertId())) {
+            log.info("Alert deduplicated. Reusing canonical alert_id {} instead of {}", canonicalAlertId, alert.alertId());
+        }
+
         // Idempotent insert into alert_accounts
         if (alert.involvedAccounts() != null) {
             for (java.util.UUID accountId : alert.involvedAccounts()) {
@@ -45,7 +56,7 @@ public class AlertProjector {
                         VALUES (?, ?)
                         ON CONFLICT DO NOTHING
                         """,
-                        alert.alertId(),
+                        canonicalAlertId,
                         accountId
                 );
             }
@@ -59,7 +70,7 @@ public class AlertProjector {
                         VALUES (?, ?)
                         ON CONFLICT DO NOTHING
                         """,
-                        alert.alertId(),
+                        canonicalAlertId,
                         transactionId
                 );
             }

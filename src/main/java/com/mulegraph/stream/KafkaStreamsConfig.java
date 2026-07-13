@@ -63,16 +63,26 @@ public class KafkaStreamsConfig {
 
     @Bean
     public org.apache.kafka.clients.admin.NewTopic deviceTopic() {
-        return org.springframework.kafka.config.TopicBuilder.name("transactions.by-device").partitions(1).replicas(1).build();
+        return org.springframework.kafka.config.TopicBuilder.name("activity.by-device").partitions(1).replicas(1).build();
     }
 
     @Bean
     public org.apache.kafka.clients.admin.NewTopic ipTopic() {
-        return org.springframework.kafka.config.TopicBuilder.name("transactions.by-ip").partitions(1).replicas(1).build();
+        return org.springframework.kafka.config.TopicBuilder.name("activity.by-ip").partitions(1).replicas(1).build();
     }
 
     @Bean
     public org.apache.kafka.clients.admin.NewTopic fraudCandidatesTopic() {
         return org.springframework.kafka.config.TopicBuilder.name("fraud.candidates").partitions(1).replicas(1).build();
+    }
+
+    @Bean
+    public org.apache.kafka.clients.admin.NewTopic fraudAlertsTopic() {
+        return org.springframework.kafka.config.TopicBuilder.name("fraud.alerts").partitions(1).replicas(1).build();
+    }
+
+    @Bean
+    public org.apache.kafka.clients.admin.NewTopic deadLetterTopic() {
+        return org.springframework.kafka.config.TopicBuilder.name("processing.dead-letter").partitions(1).replicas(1).build();
     }
 }

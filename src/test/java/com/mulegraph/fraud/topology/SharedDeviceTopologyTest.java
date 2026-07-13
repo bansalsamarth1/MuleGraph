@@ -48,7 +48,7 @@ class SharedDeviceTopologyTest {
         testDriver = new TopologyTestDriver(builder.build(), props);
 
         inputTopic = testDriver.createInputTopic(
-                "transactions.by-device",
+                "activity.by-device",
                 new StringSerializer(),
                 new JsonSerializer<>()
         );

@@ -24,6 +24,24 @@ public class TransactionProjector {
     @KafkaListener(topics = "transactions.validated", groupId = "mulegraph-transaction-projector-v1")
     public void project(InternalTransactionEvent event) {
         try {
+            // Check if transaction exists
+            java.util.List<String> existingEventIds = jdbcTemplate.queryForList(
+                    "SELECT event_id FROM transactions WHERE transaction_id = :transactionId",
+                    new MapSqlParameterSource("transactionId", event.transactionId()),
+                    String.class
+            );
+
+            if (!existingEventIds.isEmpty()) {
+                String existingEventId = existingEventIds.get(0);
+                if (existingEventId.equals(event.eventId().toString())) {
+                    log.info("Transaction {} already exists with same event_id {}, ignoring duplicate", event.transactionId(), event.eventId());
+                    return;
+                } else {
+                    log.error("Transaction {} exists with event_id {} but received new event_id {}", event.transactionId(), existingEventId, event.eventId());
+                    throw new ConflictingTransactionException("Conflicting identity or payload for transaction " + event.transactionId());
+                }
+            }
+
             String sql = """
                 INSERT INTO transactions (
                     transaction_id, event_id, source_account_id, destination_account_id,
@@ -53,6 +71,7 @@ public class TransactionProjector {
             if (rowsAffected > 0) {
                 log.info("Persisted transaction {}", event.transactionId());
             } else {
+                // We shouldn't hit this due to the check above, but in case of a race condition:
                 log.info("Transaction {} already exists, ignoring duplicate", event.transactionId());
             }
         } catch (Exception e) {

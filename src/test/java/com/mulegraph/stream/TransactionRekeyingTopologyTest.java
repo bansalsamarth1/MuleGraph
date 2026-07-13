@@ -70,13 +70,13 @@ class TransactionRekeyingTopologyTest {
         );
         
         deviceTopic = testDriver.createOutputTopic(
-                "transactions.by-device",
+                "activity.by-device",
                 new StringDeserializer(),
                 deserializer
         );
 
         ipTopic = testDriver.createOutputTopic(
-                "transactions.by-ip",
+                "activity.by-ip",
                 new StringDeserializer(),
                 deserializer
         );

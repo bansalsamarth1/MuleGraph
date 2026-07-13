@@ -26,7 +26,7 @@ import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@Disabled("Testcontainers docker-java version incompatibility with host Docker API 1.54 (400 Bad Request client version 1.32 is too old)")
+// @Disabled removed
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @Testcontainers
 public class KafkaProducerIntegrationTest {

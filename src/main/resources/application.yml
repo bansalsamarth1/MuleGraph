@@ -7,13 +7,13 @@ spring:
       max-file-size: 1MB
   kafka:
     producer:
-      bootstrap-servers: localhost:9092
+      bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
       acks: all
       retries: 3
     consumer:
-      bootstrap-servers: localhost:9092
+      bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
       properties:
         spring.json.trusted.packages: "com.mulegraph.*"
         spring.json.value.default.type: "com.mulegraph.fraud.domain.AlertEvent"
@@ -23,10 +23,11 @@ spring:
       properties:
         commit.interval.ms: 1000
         cache.max.bytes.buffering: 0
+        default.deserialization.exception.handler: com.mulegraph.stream.DeadLetterExceptionHandler
   datasource:
-    url: jdbc:postgresql://localhost:5432/mulegraph
-    username: muleuser
-    password: mulepass
+    url: ${POSTGRES_URL:jdbc:postgresql://localhost:5432/mulegraph}
+    username: ${POSTGRES_USER:muleuser}
+    password: ${POSTGRES_PASSWORD:mulepass}
   flyway:
     enabled: true
 server:
@@ -46,7 +47,7 @@ management:
 
 mulegraph:
   api:
-    key: "dev-local-api-key"
+    key: ${MULEGRAPH_API_KEY:dev-local-api-key}
   rules:
     fan-out:
       window-seconds: 60

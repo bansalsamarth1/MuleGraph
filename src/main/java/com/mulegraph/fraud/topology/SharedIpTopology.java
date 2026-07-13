@@ -45,7 +45,8 @@ public class SharedIpTopology {
                         Duration.ofSeconds(properties.getGraceSeconds())
                 );
 
-        var sourceStream = builder.stream("transactions.by-ip", Consumed.with(Serdes.String(), eventSerde));
+        KStream<String, InternalTransactionEvent> sourceStream = builder.stream(
+                "activity.by-ip", Consumed.with(Serdes.String(), eventSerde));
         sourceStream
                 .groupBy((key, event) -> key + ":" + event.currency(), Grouped.with(Serdes.String(), eventSerde))
                 .windowedBy(tumblingWindow)
