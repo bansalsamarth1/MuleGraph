@@ -38,3 +38,7 @@ mulegraph:
       window-seconds: 60
       grace-seconds: 15
       min-distinct-destinations: 5
+    fan-in:
+      window-seconds: 60
+      grace-seconds: 15
+      min-distinct-sources: 5
