@@ -9,6 +9,8 @@ public class FanOutRuleProperties {
     private int windowSeconds = 60;
     private int graceSeconds = 15;
     private int minDistinctDestinations = 5;
+    private int minTransactionCount = 0;
+    private long minTotalAmountMinor = 0;
 
     public int getWindowSeconds() {
         return windowSeconds;
@@ -32,5 +34,21 @@ public class FanOutRuleProperties {
 
     public void setMinDistinctDestinations(int minDistinctDestinations) {
         this.minDistinctDestinations = minDistinctDestinations;
+    }
+
+    public int getMinTransactionCount() {
+        return minTransactionCount;
+    }
+
+    public void setMinTransactionCount(int minTransactionCount) {
+        this.minTransactionCount = minTransactionCount;
+    }
+
+    public long getMinTotalAmountMinor() {
+        return minTotalAmountMinor;
+    }
+
+    public void setMinTotalAmountMinor(long minTotalAmountMinor) {
+        this.minTotalAmountMinor = minTotalAmountMinor;
     }
 }

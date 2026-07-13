@@ -68,6 +68,7 @@ class AlertGenerationTopologyTest {
         
         FraudCandidateEvent candidate = new FraudCandidateEvent(
                 candidateId,
+                "DEDUP-KEY-123",
                 "FAN_OUT",
                 primaryAccountId,
                 Instant.now(),

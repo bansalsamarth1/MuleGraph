@@ -9,18 +9,28 @@ public class SharedDeviceState {
     private Set<UUID> transactionIds = new HashSet<>();
     private long transactionCount = 0;
     private long totalAmountMinor = 0;
+    private String currency;
     private boolean candidateEmitted = false;
     private boolean thresholdCrossed = false;
 
     public SharedDeviceState() {
     }
 
-    public SharedDeviceState(Set<UUID> sources, Set<UUID> transactionIds, long transactionCount, long totalAmountMinor, boolean candidateEmitted) {
-        this.sources = sources;
+    public SharedDeviceState(Set<UUID> accounts, Set<UUID> transactionIds, long transactionCount, long totalAmountMinor, String currency, boolean candidateEmitted) {
+        this.sources = accounts;
         this.transactionIds = transactionIds;
         this.transactionCount = transactionCount;
         this.totalAmountMinor = totalAmountMinor;
+        this.currency = currency;
         this.candidateEmitted = candidateEmitted;
+    }
+
+    public String getCurrency() {
+        return currency;
+    }
+
+    public void setCurrency(String currency) {
+        this.currency = currency;
     }
 
     public Set<UUID> getSources() {

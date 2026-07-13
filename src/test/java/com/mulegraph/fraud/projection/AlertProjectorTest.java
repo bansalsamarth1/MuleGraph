@@ -16,6 +16,8 @@ import java.time.Instant;
 import java.util.Set;
 import java.util.UUID;
 
+import org.junit.jupiter.api.Disabled;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @Disabled("Testcontainers docker-java version incompatibility with host Docker API 1.54")
@@ -56,6 +58,7 @@ class AlertProjectorTest {
 
         AlertEvent event = new AlertEvent(
                 alertId,
+                "DEDUP-" + alertId,
                 "FAN_OUT",
                 UUID.randomUUID(),
                 "OPEN",

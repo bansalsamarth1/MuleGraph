@@ -21,6 +21,7 @@ public class AlertGenerationTopology {
         builder.stream("fraud.candidates", Consumed.with(Serdes.String(), candidateSerde))
                 .mapValues(candidate -> new AlertEvent(
                         candidate.candidateId(),
+                        candidate.deduplicationKey(),
                         candidate.ruleType(),
                         candidate.primaryAccountId(),
                         "OPEN",

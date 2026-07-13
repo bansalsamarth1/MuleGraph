@@ -18,7 +18,7 @@ public class TransactionRekeyingTopology {
         JsonSerde<InternalTransactionEvent> eventSerde = new JsonSerde<>(InternalTransactionEvent.class);
         
         KStream<String, InternalTransactionEvent> rawStream = builder.stream(
-                "transactions.raw",
+                "transactions.validated",
                 Consumed.with(Serdes.String(), eventSerde)
         );
 

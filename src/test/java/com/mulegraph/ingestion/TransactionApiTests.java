@@ -13,7 +13,21 @@ import java.util.UUID;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@SpringBootTest
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.http.MediaType;
+import org.springframework.test.web.servlet.MockMvc;
+
+import java.util.UUID;
+
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+
+@SpringBootTest(properties = {
+        "spring.flyway.enabled=false",
+        "spring.kafka.listener.auto-startup=false"
+})
 @AutoConfigureMockMvc
 public class TransactionApiTests {
 
@@ -22,6 +36,9 @@ public class TransactionApiTests {
 
     @MockitoBean
     private com.mulegraph.ingestion.port.TransactionPublisher transactionPublisher;
+
+    @MockitoBean
+    private javax.sql.DataSource dataSource;
 
     private static final String API_KEY = "dev-local-api-key";
 

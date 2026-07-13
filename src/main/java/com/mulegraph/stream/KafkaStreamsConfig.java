@@ -8,6 +8,8 @@ import org.springframework.kafka.annotation.EnableKafkaStreams;
 import org.springframework.kafka.annotation.KafkaStreamsDefaultConfiguration;
 import org.springframework.kafka.config.KafkaStreamsConfiguration;
 
+import org.springframework.beans.factory.annotation.Value;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -15,22 +17,38 @@ import java.util.Map;
 @EnableKafkaStreams
 public class KafkaStreamsConfig {
 
+    @Value("${spring.kafka.bootstrap-servers:localhost:9092}")
+    private String bootstrapServers;
+
+    @Value("${spring.kafka.streams.state.dir:/tmp/kafka-streams}")
+    private String stateDir;
+
     @Bean(name = KafkaStreamsDefaultConfiguration.DEFAULT_STREAMS_CONFIG_BEAN_NAME)
     public KafkaStreamsConfiguration kStreamsConfig() {
         Map<String, Object> props = new HashMap<>();
         props.put(StreamsConfig.APPLICATION_ID_CONFIG, "mulegraph-streams-app");
-        props.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
+        props.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
         props.put(StreamsConfig.DEFAULT_KEY_SERDE_CLASS_CONFIG, Serdes.String().getClass().getName());
         props.put(StreamsConfig.DEFAULT_VALUE_SERDE_CLASS_CONFIG, Serdes.String().getClass().getName());
         props.put(StreamsConfig.PROCESSING_GUARANTEE_CONFIG, StreamsConfig.EXACTLY_ONCE_V2);
         props.put(StreamsConfig.DEFAULT_TIMESTAMP_EXTRACTOR_CLASS_CONFIG, TransactionTimestampExtractor.class.getName());
-        props.put(StreamsConfig.STATE_DIR_CONFIG, System.getProperty("java.io.tmpdir") + "/kafka-streams-mulegraph-" + java.util.UUID.randomUUID().toString());
+        props.put(StreamsConfig.STATE_DIR_CONFIG, stateDir);
         return new KafkaStreamsConfiguration(props);
     }
 
     @Bean
     public org.apache.kafka.clients.admin.NewTopic rawTopic() {
         return org.springframework.kafka.config.TopicBuilder.name("transactions.raw").partitions(1).replicas(1).build();
+    }
+
+    @Bean
+    public org.apache.kafka.clients.admin.NewTopic validatedTopic() {
+        return org.springframework.kafka.config.TopicBuilder.name("transactions.validated").partitions(1).replicas(1).build();
+    }
+
+    @Bean
+    public org.apache.kafka.clients.admin.NewTopic invalidTopic() {
+        return org.springframework.kafka.config.TopicBuilder.name("transactions.invalid").partitions(1).replicas(1).build();
     }
 
     @Bean

@@ -6,6 +6,7 @@ import java.util.UUID;
 
 public record AlertEvent(
         UUID alertId,
+        String deduplicationKey,
         String ruleType,
         UUID primaryAccountId,
         String status,

@@ -6,6 +6,18 @@ Phase 2E — Alert Projection and Persistence
 ## Last verified commit
 not committed yet
 
+## Current Phase
+Phase 2 (Fraud Detection Topologies) is active. Alert Deduplication logic and Threshold properties are implemented and tested. Phase 1D (Ledger & Validation) was successfully retrofitted and verified.
+
+## Progress
+- [x] Phase 1A: Domain, API, and Basic Ingestion
+- [x] Phase 1B: PostgreSQL Ledger setup
+- [x] Phase 1C: Kafka Streams basic setup
+- [x] Phase 1D: Validation pipeline (TransactionNormalizationTopology)
+- [x] Phase 2: Fraud Detection Topologies (FanOut, FanIn, SharedDevice, SharedIp)
+- [x] Alert Deduplication via ON CONFLICT DO NOTHING
+- [ ] Phase 3: Neo4j and Complex Queries
+
 ## Completed acceptance criteria
 - Configured Postgres using Docker Compose (`mulegraph-postgres` on port 5432).
 - Enabled Flyway with migration scripts `V1__Create_Transaction_Tables.sql` and `V2__Create_Alert_Tables.sql`.

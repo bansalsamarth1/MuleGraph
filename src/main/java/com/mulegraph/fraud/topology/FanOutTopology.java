@@ -51,18 +51,24 @@ public class FanOutTopology {
                 );
 
         sourceStream
-                .groupByKey(Grouped.with(Serdes.String(), eventSerde))
+                .groupBy((key, event) -> key + ":" + event.currency(), Grouped.with(Serdes.String(), eventSerde))
                 .windowedBy(tumblingWindow)
                 .aggregate(
                         FanOutState::new,
                         (key, event, state) -> {
+                            System.out.println("Processing event for key " + key + ": " + event);
                             boolean wasEmitted = state.isCandidateEmitted();
                             state.getDestinations().add(event.destinationAccountId());
                             state.getTransactionIds().add(event.transactionId());
                             state.setTransactionCount(state.getTransactionCount() + 1);
                             state.setTotalAmountMinor(state.getTotalAmountMinor() + event.amountMinor());
+                            state.setCurrency(event.currency());
 
-                            if (!wasEmitted && state.getDestinations().size() >= properties.getMinDistinctDestinations()) {
+                            boolean distinctMet = state.getDestinations().size() >= properties.getMinDistinctDestinations();
+                            boolean countMet = properties.getMinTransactionCount() <= 0 || state.getTransactionCount() >= properties.getMinTransactionCount();
+                            boolean amountMet = properties.getMinTotalAmountMinor() <= 0 || state.getTotalAmountMinor() >= properties.getMinTotalAmountMinor();
+
+                            if (!wasEmitted && distinctMet && countMet && amountMet) {
                                 state.setCandidateEmitted(true);
                                 state.setThresholdCrossed(true);
                             } else {
@@ -77,16 +83,19 @@ public class FanOutTopology {
                 .toStream()
                 .map((windowedKey, state) -> {
                     if (state.isThresholdCrossed()) {
-                        String sourceAccountId = windowedKey.key();
+                        String[] parts = windowedKey.key().split(":");
+                        String sourceAccountId = parts[0];
+                        String currency = parts.length > 1 ? parts[1] : "UNKNOWN";
                         Instant windowStart = windowedKey.window().startTime();
                         Instant windowEnd = windowedKey.window().endTime();
 
-                        String uniqueString = String.format("FAN_OUT-%s-%d", sourceAccountId, windowStart.toEpochMilli());
+                        String uniqueString = String.format("FAN_OUT-%s-%s-%d", sourceAccountId, currency, windowStart.toEpochMilli());
                         UUID candidateId = UUID.nameUUIDFromBytes(uniqueString.getBytes());
                         UUID primaryAccountId = UUID.fromString(sourceAccountId);
 
                         FraudCandidateEvent candidate = new FraudCandidateEvent(
                                 candidateId,
+                                uniqueString,
                                 "FAN_OUT",
                                 primaryAccountId,
                                 windowStart,
@@ -94,7 +103,7 @@ public class FanOutTopology {
                                 state.getDestinations().size(),
                                 state.getTransactionCount(),
                                 state.getTotalAmountMinor(),
-                                "INR", // synthetic currency
+                                state.getCurrency(),
                                 state.getDestinations(),
                                 state.getTransactionIds(),
                                 Instant.now()

@@ -52,7 +52,7 @@ class TransactionRekeyingTopologyTest {
         deserializer.addTrustedPackages("*");
 
         inputTopic = testDriver.createInputTopic(
-                "transactions.raw",
+                "transactions.validated",
                 new StringSerializer(),
                 serializer
         );

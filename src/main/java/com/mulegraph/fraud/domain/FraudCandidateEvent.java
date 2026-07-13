@@ -10,6 +10,9 @@ public record FraudCandidateEvent(
         @JsonProperty("candidate_id")
         UUID candidateId,
 
+        @JsonProperty("deduplication_key")
+        String deduplicationKey,
+
         @JsonProperty("rule_type")
         String ruleType,
 

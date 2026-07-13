@@ -9,18 +9,28 @@ public class FanOutState {
     private Set<UUID> transactionIds = new HashSet<>();
     private long transactionCount = 0;
     private long totalAmountMinor = 0;
+    private String currency;
     private boolean candidateEmitted = false;
     private boolean thresholdCrossed = false;
 
     public FanOutState() {
     }
 
-    public FanOutState(Set<UUID> destinations, Set<UUID> transactionIds, long transactionCount, long totalAmountMinor, boolean candidateEmitted) {
+    public FanOutState(Set<UUID> destinations, Set<UUID> transactionIds, long transactionCount, long totalAmountMinor, String currency, boolean candidateEmitted) {
         this.destinations = destinations;
         this.transactionIds = transactionIds;
         this.transactionCount = transactionCount;
         this.totalAmountMinor = totalAmountMinor;
+        this.currency = currency;
         this.candidateEmitted = candidateEmitted;
+    }
+
+    public String getCurrency() {
+        return currency;
+    }
+
+    public void setCurrency(String currency) {
+        this.currency = currency;
     }
 
     public Set<UUID> getDestinations() {

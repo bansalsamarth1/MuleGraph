@@ -25,11 +25,12 @@ public class AlertProjector {
 
         // Idempotent insert into alerts
         jdbcTemplate.update("""
-                INSERT INTO alerts (alert_id, rule_type, primary_account_id, status, created_at)
-                VALUES (?, ?, ?, ?, ?)
-                ON CONFLICT (alert_id) DO NOTHING
+                INSERT INTO alerts (alert_id, deduplication_key, rule_type, primary_account_id, status, created_at)
+                VALUES (?, ?, ?, ?, ?, ?)
+                ON CONFLICT (deduplication_key) DO NOTHING
                 """,
                 alert.alertId(),
+                alert.deduplicationKey(),
                 alert.ruleType(),
                 alert.primaryAccountId(),
                 alert.status(),

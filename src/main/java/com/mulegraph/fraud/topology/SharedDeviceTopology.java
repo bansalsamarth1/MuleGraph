@@ -10,6 +10,7 @@ import org.apache.kafka.streams.KeyValue;
 import org.apache.kafka.streams.StreamsBuilder;
 import org.apache.kafka.streams.kstream.Consumed;
 import org.apache.kafka.streams.kstream.Grouped;
+import org.apache.kafka.streams.kstream.KStream;
 import org.apache.kafka.streams.kstream.Materialized;
 import org.apache.kafka.streams.kstream.Produced;
 import org.apache.kafka.streams.kstream.TimeWindows;
@@ -44,8 +45,9 @@ public class SharedDeviceTopology {
                         Duration.ofSeconds(properties.getGraceSeconds())
                 );
 
-        builder.stream("transactions.by-device", Consumed.with(Serdes.String(), eventSerde))
-                .groupByKey(Grouped.with(Serdes.String(), eventSerde))
+        var sourceStream = builder.stream("transactions.by-device", Consumed.with(Serdes.String(), eventSerde));
+        sourceStream
+                .groupBy((key, event) -> key + ":" + event.currency(), Grouped.with(Serdes.String(), eventSerde))
                 .windowedBy(tumblingWindow)
                 .aggregate(
                         SharedDeviceState::new,
@@ -55,8 +57,13 @@ public class SharedDeviceTopology {
                             state.getTransactionIds().add(event.transactionId());
                             state.setTransactionCount(state.getTransactionCount() + 1);
                             state.setTotalAmountMinor(state.getTotalAmountMinor() + event.amountMinor());
+                            state.setCurrency(event.currency());
 
-                            if (!wasEmitted && state.getSources().size() >= properties.getMinDistinctSources()) {
+                            boolean distinctMet = state.getSources().size() >= properties.getMinDistinctSources();
+                            boolean countMet = properties.getMinTransactionCount() <= 0 || state.getTransactionCount() >= properties.getMinTransactionCount();
+                            boolean amountMet = properties.getMinTotalAmountMinor() <= 0 || state.getTotalAmountMinor() >= properties.getMinTotalAmountMinor();
+
+                            if (!wasEmitted && distinctMet && countMet && amountMet) {
                                 state.setCandidateEmitted(true);
                                 state.setThresholdCrossed(true);
                             } else {
@@ -71,26 +78,27 @@ public class SharedDeviceTopology {
                 .toStream()
                 .map((windowedKey, state) -> {
                     if (state.isThresholdCrossed()) {
-                        String deviceId = windowedKey.key();
+                        String[] parts = windowedKey.key().split(":");
+                        String deviceId = parts[0];
+                        String currency = parts.length > 1 ? parts[1] : "UNKNOWN";
                         Instant windowStart = windowedKey.window().startTime();
                         Instant windowEnd = windowedKey.window().endTime();
 
-                        String uniqueString = String.format("SHARED_DEVICE-%s-%d", deviceId, windowStart.toEpochMilli());
+                        String uniqueString = String.format("SHARED_DEVICE-%s-%s-%d", deviceId, currency, windowStart.toEpochMilli());
                         UUID candidateId = UUID.nameUUIDFromBytes(uniqueString.getBytes());
-                        
-                        // We use a deterministic UUID generated from the device ID for primaryAccountId
-                        UUID deviceUuid = UUID.nameUUIDFromBytes(deviceId.getBytes());
+                        UUID primaryAccountId = UUID.nameUUIDFromBytes(deviceId.getBytes());
 
                         FraudCandidateEvent candidate = new FraudCandidateEvent(
                                 candidateId,
+                                uniqueString,
                                 "SHARED_DEVICE",
-                                deviceUuid,
+                                primaryAccountId,
                                 windowStart,
                                 windowEnd,
                                 state.getSources().size(),
                                 state.getTransactionCount(),
                                 state.getTotalAmountMinor(),
-                                "INR", // synthetic currency
+                                state.getCurrency(),
                                 state.getSources(),
                                 state.getTransactionIds(),
                                 Instant.now()
