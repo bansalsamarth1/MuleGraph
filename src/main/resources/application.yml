@@ -65,3 +65,18 @@ mulegraph:
       window-seconds: 60
       grace-seconds: 15
       min-distinct-sources: 3
+    circular-flow:
+      max-depth: 4
+      window-seconds: 86400
+      amount-tolerance-percent: 10
+
+---
+spring:
+  config:
+    activate:
+      on-profile: graph-projector
+  neo4j:
+    uri: ${NEO4J_URI:bolt://localhost:7687}
+    authentication:
+      username: ${NEO4J_USERNAME:neo4j}
+      password: ${NEO4J_PASSWORD:mulepass}

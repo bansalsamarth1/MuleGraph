@@ -85,4 +85,14 @@ public class KafkaStreamsConfig {
     public org.apache.kafka.clients.admin.NewTopic deadLetterTopic() {
         return org.springframework.kafka.config.TopicBuilder.name("processing.dead-letter").partitions(1).replicas(1).build();
     }
+
+    @Bean
+    public org.apache.kafka.clients.admin.NewTopic graphUpdatesTopic() {
+        return org.springframework.kafka.config.TopicBuilder.name("graph.updates").partitions(1).replicas(1).build();
+    }
+
+    @Bean
+    public org.apache.kafka.clients.admin.NewTopic graphUpdatesDltTopic() {
+        return org.springframework.kafka.config.TopicBuilder.name("graph.updates.DLT").partitions(1).replicas(1).build();
+    }
 }

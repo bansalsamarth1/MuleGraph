@@ -15,6 +15,7 @@ import org.springframework.boot.testcontainers.service.connection.ServiceConnect
 import org.springframework.http.*;
 import org.springframework.kafka.support.serializer.JsonDeserializer;
 import org.testcontainers.containers.KafkaContainer;
+import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.DockerImageName;
@@ -27,13 +28,30 @@ import java.util.UUID;
 import static org.assertj.core.api.Assertions.assertThat;
 
 // @Disabled removed
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest(
+    webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
+    properties = {
+        "spring.kafka.streams.state.dir=/tmp/kafka-streams-${random.uuid}"
+    }
+)
 @Testcontainers
 public class KafkaProducerIntegrationTest {
 
     @Container
     @ServiceConnection
-    static KafkaContainer kafkaContainer = new KafkaContainer(DockerImageName.parse("confluentinc/cp-kafka:7.7.1"));
+    static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:15-alpine");
+
+    @Container
+    @ServiceConnection
+    static KafkaContainer kafkaContainer = new KafkaContainer(DockerImageName.parse("confluentinc/cp-kafka:7.7.1"))
+            .withEnv("KAFKA_LISTENERS", "PLAINTEXT://0.0.0.0:9093,BROKER://0.0.0.0:9092")
+            .withEnv("KAFKA_LISTENER_SECURITY_PROTOCOL_MAP", "BROKER:PLAINTEXT,PLAINTEXT:PLAINTEXT")
+            .withEnv("KAFKA_INTER_BROKER_LISTENER_NAME", "BROKER");
+
+    @org.springframework.test.context.DynamicPropertySource
+    static void kafkaProperties(org.springframework.test.context.DynamicPropertyRegistry registry) {
+        registry.add("KAFKA_BOOTSTRAP_SERVERS", kafkaContainer::getBootstrapServers);
+    }
 
     @Autowired
     private TestRestTemplate restTemplate;
