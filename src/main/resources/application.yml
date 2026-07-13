@@ -33,3 +33,8 @@ management:
 mulegraph:
   api:
     key: "dev-local-api-key"
+  rules:
+    fan-out:
+      window-seconds: 60
+      grace-seconds: 15
+      min-distinct-destinations: 5

@@ -24,6 +24,7 @@ public class KafkaStreamsConfig {
         props.put(StreamsConfig.DEFAULT_VALUE_SERDE_CLASS_CONFIG, Serdes.String().getClass().getName());
         props.put(StreamsConfig.PROCESSING_GUARANTEE_CONFIG, StreamsConfig.EXACTLY_ONCE_V2);
         props.put(StreamsConfig.DEFAULT_TIMESTAMP_EXTRACTOR_CLASS_CONFIG, TransactionTimestampExtractor.class.getName());
+        props.put(StreamsConfig.STATE_DIR_CONFIG, System.getProperty("java.io.tmpdir") + "/kafka-streams-mulegraph-" + java.util.UUID.randomUUID().toString());
         return new KafkaStreamsConfiguration(props);
     }
 
@@ -50,5 +51,10 @@ public class KafkaStreamsConfig {
     @Bean
     public org.apache.kafka.clients.admin.NewTopic ipTopic() {
         return org.springframework.kafka.config.TopicBuilder.name("transactions.by-ip").partitions(1).replicas(1).build();
+    }
+
+    @Bean
+    public org.apache.kafka.clients.admin.NewTopic fraudCandidatesTopic() {
+        return org.springframework.kafka.config.TopicBuilder.name("fraud.candidates").partitions(1).replicas(1).build();
     }
 }
