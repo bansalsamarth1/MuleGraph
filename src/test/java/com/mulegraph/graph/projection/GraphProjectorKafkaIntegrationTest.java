@@ -81,6 +81,9 @@ class GraphProjectorKafkaIntegrationTest {
         }
     }
 
+    @Autowired
+    private com.fasterxml.jackson.databind.ObjectMapper objectMapper;
+
     @Test
     void permanentInvalidEvent_routesToDLT() {
         // Send a completely invalid payload (a raw string instead of JSON object)
@@ -88,11 +91,11 @@ class GraphProjectorKafkaIntegrationTest {
 
         ConsumerRecord<String, String> record = KafkaTestUtils.getSingleRecord(consumer, "graph.updates.DLT", Duration.ofSeconds(10));
         assertThat(record).isNotNull();
-        assertThat(record.value()).isEqualTo("\"invalid-json-payload\"");
+        assertThat(record.value()).isEqualTo("invalid-json-payload");
     }
 
     @Test
-    void validEvent_processedWithoutDLT() throws InterruptedException {
+    void validEvent_processedWithoutDLT() throws Exception {
         GraphUpdateEvent event = new GraphUpdateEvent();
         event.setEventId(UUID.randomUUID());
         event.setTransactionId(UUID.randomUUID());
@@ -103,7 +106,8 @@ class GraphProjectorKafkaIntegrationTest {
         event.setOccurredAt(Instant.now());
         event.setIngestedAt(Instant.now());
         
-        kafkaTemplate.send("graph.updates", event);
+        String jsonPayload = objectMapper.writeValueAsString(event);
+        kafkaTemplate.send("graph.updates", jsonPayload);
 
         // Verify it doesn't end up in DLT
         try {
