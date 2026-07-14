@@ -150,7 +150,12 @@ class CircularFlowConfirmationServiceTest {
         );
 
         String jsonPayload = objectMapper.writeValueAsString(tx);
-        kafkaTemplate.send("transactions.validated", jsonPayload);
+        org.springframework.messaging.Message<String> message = org.springframework.messaging.support.MessageBuilder
+                .withPayload(jsonPayload)
+                .setHeader(org.springframework.kafka.support.KafkaHeaders.TOPIC, "transactions.validated")
+                .setHeader("__TypeId__", InternalTransactionEvent.class.getName().getBytes(java.nio.charset.StandardCharsets.UTF_8))
+                .build();
+        kafkaTemplate.send(message);
 
         ConsumerRecord<String, AlertEvent> record = KafkaTestUtils.getSingleRecord(consumer, "fraud.alerts", Duration.ofSeconds(10));
         assertThat(record).isNotNull();
