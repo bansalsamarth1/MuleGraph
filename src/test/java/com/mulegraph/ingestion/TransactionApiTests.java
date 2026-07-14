@@ -30,6 +30,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
         "spring.kafka.streams.auto-startup=false",
         "management.health.kafka.enabled=false",
         "spring.kafka.streams.state.dir=/tmp/kafka-streams-${random.uuid}",
+        "mulegraph.api.key=dev-local-api-key",
         "spring.autoconfigure.exclude=org.springframework.boot.autoconfigure.neo4j.Neo4jAutoConfiguration,org.springframework.boot.autoconfigure.data.neo4j.Neo4jDataAutoConfiguration,org.springframework.boot.autoconfigure.data.neo4j.Neo4jRepositoriesAutoConfiguration"
 })
 @AutoConfigureMockMvc

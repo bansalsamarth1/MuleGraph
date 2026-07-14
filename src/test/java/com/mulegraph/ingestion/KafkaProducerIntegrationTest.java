@@ -31,7 +31,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 @SpringBootTest(
     webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
     properties = {
-        "spring.kafka.streams.state.dir=/tmp/kafka-streams-${random.uuid}"
+        "spring.kafka.streams.state.dir=/tmp/kafka-streams-${random.uuid}",
+        "mulegraph.api.key=dev-local-api-key"
     }
 )
 @Testcontainers
