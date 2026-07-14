@@ -39,6 +39,7 @@ public class DeadLetterExceptionHandler implements DeserializationExceptionHandl
                     DLQ_TOPIC, null, record.timestamp(), record.key(), record.value(), record.headers());
             dlqRecord.headers().add("deserialization-error", exception.getMessage().getBytes());
             producer.send(dlqRecord);
+            io.micrometer.core.instrument.Metrics.globalRegistry.counter("mulegraph.dlq.events", "topic", record.topic()).increment();
         } catch (Exception e) {
             log.error("Failed to send record to DLQ topic {}", DLQ_TOPIC, e);
         }

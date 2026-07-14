@@ -7,15 +7,18 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import io.micrometer.core.instrument.MeterRegistry;
 
 @Service
 public class AlertProjector {
 
     private static final Logger log = LoggerFactory.getLogger(AlertProjector.class);
     private final JdbcTemplate jdbcTemplate;
+    private final MeterRegistry meterRegistry;
 
-    public AlertProjector(JdbcTemplate jdbcTemplate) {
+    public AlertProjector(JdbcTemplate jdbcTemplate, MeterRegistry meterRegistry) {
         this.jdbcTemplate = jdbcTemplate;
+        this.meterRegistry = meterRegistry;
     }
 
     @KafkaListener(topics = "fraud.alerts", groupId = "mulegraph-alert-projector-v1")
@@ -46,6 +49,9 @@ public class AlertProjector {
         
         if (!canonicalAlertId.equals(alert.alertId())) {
             log.info("Alert deduplicated. Reusing canonical alert_id {} instead of {}", canonicalAlertId, alert.alertId());
+            meterRegistry.counter("mulegraph.alerts.duplicates", "rule_type", alert.ruleType()).increment();
+        } else {
+            meterRegistry.counter("mulegraph.alerts.created", "rule_type", alert.ruleType()).increment();
         }
 
         // Idempotent insert into alert_accounts

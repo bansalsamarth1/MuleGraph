@@ -5,6 +5,8 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.data.neo4j.core.Neo4jClient;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
+import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.Timer;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -15,9 +17,11 @@ import java.util.UUID;
 public class GraphProjector {
 
     private final Neo4jClient neo4jClient;
+    private final MeterRegistry meterRegistry;
 
-    public GraphProjector(Neo4jClient neo4jClient) {
+    public GraphProjector(Neo4jClient neo4jClient, MeterRegistry meterRegistry) {
         this.neo4jClient = neo4jClient;
+        this.meterRegistry = meterRegistry;
     }
 
     @KafkaListener(
@@ -76,6 +80,11 @@ public class GraphProjector {
         parameters.put("deviceId", event.getDeviceId());
         parameters.put("ipHash", event.getIpHash());
 
-        neo4jClient.query(cypher).bindAll(parameters).run();
+        Timer.builder("mulegraph.neo4j.projection.latency")
+                .description("Time taken to project a transaction to Neo4j")
+                .register(meterRegistry)
+                .record(() -> {
+                    neo4jClient.query(cypher).bindAll(parameters).run();
+                });
     }
 }

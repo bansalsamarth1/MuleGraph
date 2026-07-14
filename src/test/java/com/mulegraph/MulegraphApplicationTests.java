@@ -30,6 +30,7 @@ class MulegraphApplicationTests {
     @org.springframework.test.context.DynamicPropertySource
     static void kafkaProperties(org.springframework.test.context.DynamicPropertyRegistry registry) {
         registry.add("KAFKA_BOOTSTRAP_SERVERS", kafka::getBootstrapServers);
+        registry.add("spring.kafka.bootstrap-servers", kafka::getBootstrapServers);
     }
 
 	@Test

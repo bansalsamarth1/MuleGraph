@@ -1,0 +1,10 @@
+spring:
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+    listener:
+      observation-enabled: false
+    template:
+      observation-enabled: false
+management:
+  tracing:
+    enabled: false

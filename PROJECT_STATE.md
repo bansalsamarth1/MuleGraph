@@ -1,13 +1,13 @@
 # MuleGraph Project State
 
 ## Active phase
-Phase 5
+Phase 6
 
 ## Last verified commit
 not committed yet
 
 ## Current Phase
-Phase 5 (Metric Evaluation) is completed. A synthetic evaluation harness correctly calculates True Positives, False Positives, False Negatives, Precision, and Recall. Fixes were applied to stream-time mechanisms and EOS commit intervals to achieve 1.000 Precision and 1.000 Recall on all scenarios.
+Phase 6 (Observability) is completed. Metrics instrumentation for all key business events (transactions accepted, alerts created, neo4j projection latency) was added. Grafana, Prometheus, and OpenTelemetry Collector are now integrated and successfully tested with a demo showcase.
 
 ## Progress
 - `[x]` Phase 1A: Domain, API, and Basic Ingestion
@@ -18,13 +18,15 @@ Phase 5 (Metric Evaluation) is completed. A synthetic evaluation harness correct
 - `[x]` Phase 3: Neo4j Graph Projection and Robust Error Handling
 - `[x]` Phase 4: Circular Flow Detection
 - `[x]` Phase 5: Metric Evaluation
-- `[ ]` Phase 6: Observability
+- `[x]` Phase 6: Observability
+- `[ ]` Phase 7: Kubernetes
 
 ## Completed acceptance criteria
-- Implemented `EvaluationHarness` mapping specific topologies (Fan-Out, Fan-In, Shared-Device, Shared-IP, Circular-Flow) to expected Alert models.
-- Tuned Kafka Streams time alignment logic to avoid tumbling window fragmentation.
-- Tuned evaluation pacing to absorb `EXACTLY_ONCE_V2` transaction latency into graph projection.
-- Achieved perfect evaluation metrics: 1.000 Precision, 1.000 Recall, 0 FP, 0 FN.
+- Instrumented `AlertProjector` and `GraphProjector` with Micrometer.
+- Exposed `/actuator/prometheus` endpoint.
+- Provisioned Prometheus, Grafana, and OpenTelemetry via Docker Compose.
+- Verified observability of business flows by running the `EvaluationHarness` JVM in a separate process.
+- Implemented script to demonstrate a simulated failure (restarting Neo4j) and verified telemetry capture.
 
 ## Failing or blocked criteria
 None.
@@ -32,12 +34,12 @@ None.
 ## Exact verification commands
 ```bash
 export JAVA_HOME=/opt/homebrew/opt/openjdk@21
-./scripts/demo/phase-5.sh
+./scripts/demo/phase-6.sh
 ```
 
 ## Known limitations
-- The synthetic harness runs entirely in a single JVM via Spring Boot, which is simpler but not fully representative of distributed cluster environments.
-- Stream time strictly requires synthetic background transactions to push event time accurately.
+- Grafana dashboards are currently blank unless manually imported; future enhancements can provision default dashboards as config files.
+- The `EvaluationHarness` JVM and Main JVM require strict port and state directory segregation during concurrent execution.
 
 ## Next allowed task
-Start Phase 6: Observability.
+Start Phase 7: Kubernetes.

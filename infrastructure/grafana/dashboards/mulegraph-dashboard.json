@@ -1,0 +1,77 @@
+{
+  "annotations": {
+    "list": []
+  },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 0,
+  "links": [],
+  "liveNow": false,
+  "panels": [
+    {
+      "title": "Alerts Created",
+      "type": "timeseries",
+      "datasource": "Prometheus",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 0
+      },
+      "targets": [
+        {
+          "expr": "sum(increase(mulegraph_alerts_created_total[1m])) by (rule_type)",
+          "legendFormat": "{{rule_type}}"
+        }
+      ]
+    },
+    {
+      "title": "Neo4j Projection Latency",
+      "type": "timeseries",
+      "datasource": "Prometheus",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 0
+      },
+      "targets": [
+        {
+          "expr": "rate(mulegraph_neo4j_projection_latency_seconds_sum[1m]) / rate(mulegraph_neo4j_projection_latency_seconds_count[1m])",
+          "legendFormat": "Avg Latency (s)"
+        }
+      ]
+    },
+    {
+      "title": "DLQ Events",
+      "type": "timeseries",
+      "datasource": "Prometheus",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 8
+      },
+      "targets": [
+        {
+          "expr": "sum(increase(mulegraph_dlq_events_total[1m])) by (topic)",
+          "legendFormat": "{{topic}}"
+        }
+      ]
+    }
+  ],
+  "schemaVersion": 38,
+  "tags": [],
+  "templating": {
+    "list": []
+  },
+  "time": {
+    "from": "now-15m",
+    "to": "now"
+  },
+  "timepicker": {},
+  "timezone": "",
+  "title": "MuleGraph Observability",
+  "uid": "mulegraph_obs_01",
+  "version": 1
+}
