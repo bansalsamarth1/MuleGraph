@@ -1,13 +1,13 @@
 # MuleGraph Project State
 
 ## Active phase
-Phase 6
+Completed (Phase 7 done)
 
 ## Last verified commit
 not committed yet
 
 ## Current Phase
-Phase 6 (Observability) is completed. Metrics instrumentation for all key business events (transactions accepted, alerts created, neo4j projection latency) was added. Grafana, Prometheus, and OpenTelemetry Collector are now integrated and successfully tested with a demo showcase.
+Phase 7 (Kubernetes Deployment) is completed. MuleGraph stateless profiles are containerized and deployed via Helm charts. Stateful services (PostgreSQL, Neo4j, Strimzi Kafka) are provisioned. HPA and resource limits are tested on a local `kind` cluster. End-to-end processing and stateful resiliency verified.
 
 ## Progress
 - `[x]` Phase 1A: Domain, API, and Basic Ingestion
@@ -19,7 +19,7 @@ Phase 6 (Observability) is completed. Metrics instrumentation for all key busine
 - `[x]` Phase 4: Circular Flow Detection
 - `[x]` Phase 5: Metric Evaluation
 - `[x]` Phase 6: Observability
-- `[ ]` Phase 7: Kubernetes
+- `[x]` Phase 7: Kubernetes
 
 ## Completed acceptance criteria
 - Instrumented `AlertProjector` and `GraphProjector` with Micrometer.
@@ -27,6 +27,7 @@ Phase 6 (Observability) is completed. Metrics instrumentation for all key busine
 - Provisioned Prometheus, Grafana, and OpenTelemetry via Docker Compose.
 - Verified observability of business flows by running the `EvaluationHarness` JVM in a separate process.
 - Implemented script to demonstrate a simulated failure (restarting Neo4j) and verified telemetry capture.
+- Containerized all components and validated via Helm on Minikube.
 
 ## Failing or blocked criteria
 None.

@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "mulegraph.fullname" . }}-config
+  labels:
+    {{- include "mulegraph.labels" . | nindent 4 }}
+data:
+  SPRING_PROFILES_ACTIVE: {{ .Values.spring.profiles | quote }}
+  SPRING_KAFKA_BOOTSTRAP_SERVERS: {{ .Values.spring.kafka.bootstrapServers | quote }}
+  SPRING_DATASOURCE_URL: {{ .Values.spring.datasource.url | quote }}
+  SPRING_DATASOURCE_USERNAME: {{ .Values.spring.datasource.username | quote }}
+  SPRING_NEO4J_URI: {{ .Values.spring.neo4j.uri | quote }}
