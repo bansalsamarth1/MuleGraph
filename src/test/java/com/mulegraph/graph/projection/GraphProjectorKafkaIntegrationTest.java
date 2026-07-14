@@ -107,7 +107,12 @@ class GraphProjectorKafkaIntegrationTest {
         event.setIngestedAt(Instant.now());
         
         String jsonPayload = objectMapper.writeValueAsString(event);
-        kafkaTemplate.send("graph.updates", jsonPayload);
+        org.springframework.messaging.Message<String> message = org.springframework.messaging.support.MessageBuilder
+                .withPayload(jsonPayload)
+                .setHeader(org.springframework.kafka.support.KafkaHeaders.TOPIC, "graph.updates")
+                .setHeader("__TypeId__", GraphUpdateEvent.class.getName().getBytes(java.nio.charset.StandardCharsets.UTF_8))
+                .build();
+        kafkaTemplate.send(message);
 
         // Verify it doesn't end up in DLT
         try {
