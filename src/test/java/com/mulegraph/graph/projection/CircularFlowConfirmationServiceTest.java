@@ -94,8 +94,11 @@ class CircularFlowConfirmationServiceTest {
         }
     }
 
+    @Autowired
+    private com.fasterxml.jackson.databind.ObjectMapper objectMapper;
+
     @Test
-    void cycleDetected_emitsAlert() {
+    void cycleDetected_emitsAlert() throws Exception {
         UUID accountA = UUID.randomUUID();
         UUID accountB = UUID.randomUUID();
         UUID accountC = UUID.randomUUID();
@@ -146,7 +149,8 @@ class CircularFlowConfirmationServiceTest {
                 t3
         );
 
-        kafkaTemplate.send("transactions.validated", tx);
+        String jsonPayload = objectMapper.writeValueAsString(tx);
+        kafkaTemplate.send("transactions.validated", jsonPayload);
 
         ConsumerRecord<String, AlertEvent> record = KafkaTestUtils.getSingleRecord(consumer, "fraud.alerts", Duration.ofSeconds(10));
         assertThat(record).isNotNull();
