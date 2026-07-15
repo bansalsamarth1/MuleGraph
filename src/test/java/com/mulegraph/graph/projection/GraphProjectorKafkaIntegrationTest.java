@@ -92,7 +92,7 @@ class GraphProjectorKafkaIntegrationTest {
 
         ConsumerRecord<String, String> record = KafkaTestUtils.getSingleRecord(consumer, "graph.updates.DLT", Duration.ofSeconds(10));
         assertThat(record).isNotNull();
-        assertThat(record.value()).isEqualTo("invalid-json-payload");
+        assertThat(record.value()).isEqualTo("\"invalid-json-payload\"");
     }
 
     @Test
