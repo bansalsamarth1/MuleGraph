@@ -77,8 +77,17 @@ public class GraphProjector {
         parameters.put("occurredAt", event.getOccurredAt().toString());
         parameters.put("amountMinor", event.getAmountMinor());
         parameters.put("transactionId", event.getTransactionId().toString());
-        parameters.put("deviceId", event.getDeviceId());
-        parameters.put("ipHash", event.getIpHash());
+        if (event.getDeviceId() != null) {
+            parameters.put("deviceId", event.getDeviceId());
+        } else {
+            parameters.put("deviceId", "");
+        }
+        
+        if (event.getIpHash() != null) {
+            parameters.put("ipHash", event.getIpHash());
+        } else {
+            parameters.put("ipHash", "");
+        }
 
         Timer.builder("mulegraph.neo4j.projection.latency")
                 .description("Time taken to project a transaction to Neo4j")

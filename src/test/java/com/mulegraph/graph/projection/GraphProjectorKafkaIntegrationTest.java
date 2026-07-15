@@ -33,7 +33,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 @SpringBootTest(
     webEnvironment = SpringBootTest.WebEnvironment.NONE,
     properties = {
-        "spring.kafka.streams.state.dir=/tmp/kafka-streams-${random.uuid}"
+        "spring.kafka.streams.state.dir=/tmp/kafka-streams-${random.uuid}",
+        "spring.kafka.producer.value-serializer=org.springframework.kafka.support.serializer.JsonSerializer"
     }
 )
 @ActiveProfiles("graph-projector")
@@ -81,6 +82,9 @@ class GraphProjectorKafkaIntegrationTest {
         }
     }
 
+    @Autowired
+    private com.fasterxml.jackson.databind.ObjectMapper objectMapper;
+
     @Test
     void permanentInvalidEvent_routesToDLT() {
         // Send a completely invalid payload (a raw string instead of JSON object)
@@ -92,7 +96,7 @@ class GraphProjectorKafkaIntegrationTest {
     }
 
     @Test
-    void validEvent_processedWithoutDLT() throws InterruptedException {
+    void validEvent_processedWithoutDLT() throws Exception {
         GraphUpdateEvent event = new GraphUpdateEvent();
         event.setEventId(UUID.randomUUID());
         event.setTransactionId(UUID.randomUUID());

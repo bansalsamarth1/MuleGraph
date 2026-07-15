@@ -55,8 +55,8 @@ public class CircularFlowConfirmationService {
                 WHERE ALL(n IN nodes(path) WHERE single(x IN nodes(path) WHERE x = n))
                   AND ALL(r IN relationships(path) WHERE r.latest_occurred_at >= $windowStart)
                   AND ALL(r IN relationships(path) WHERE r.total_amount_minor >= $minAmount AND r.total_amount_minor <= $maxAmount)
-                  AND all(i in range(0, length(path)-2) WHERE (relationships(path)[i]).latest_occurred_at <= (relationships(path)[i+1]).latest_occurred_at)
-                  AND (relationships(path)[length(path)-1]).latest_occurred_at <= $candidateTime
+                  AND all(i in range(0, length(path)-2) WHERE relationships(path)[i].latest_occurred_at <= relationships(path)[i+1].latest_occurred_at)
+                  AND relationships(path)[length(path)-1].latest_occurred_at <= $candidateTime
                 RETURN [n IN nodes(path) | n.account_id] AS accountIds, 
                        [r IN relationships(path) | r.latest_transaction_id] AS transactionIds
                 """, maxDepth - 1);

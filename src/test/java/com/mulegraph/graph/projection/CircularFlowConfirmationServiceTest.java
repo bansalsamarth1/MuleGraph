@@ -37,9 +37,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 @SpringBootTest(
     webEnvironment = SpringBootTest.WebEnvironment.NONE,
     properties = {
-        "spring.kafka.streams.state.dir=/tmp/kafka-streams-${random.uuid}"
-    }
-)
+        "spring.kafka.streams.state.dir=/tmp/kafka-streams-${random.uuid}",
+        "circular-flow.amount-tolerance-percent=10",
+        "spring.kafka.producer.value-serializer=org.springframework.kafka.support.serializer.JsonSerializer"
+    })
 @ActiveProfiles("graph-projector")
 @Testcontainers
 class CircularFlowConfirmationServiceTest {
@@ -94,8 +95,11 @@ class CircularFlowConfirmationServiceTest {
         }
     }
 
+    @Autowired
+    private com.fasterxml.jackson.databind.ObjectMapper objectMapper;
+
     @Test
-    void cycleDetected_emitsAlert() {
+    void cycleDetected_emitsAlert() throws Exception {
         UUID accountA = UUID.randomUUID();
         UUID accountB = UUID.randomUUID();
         UUID accountC = UUID.randomUUID();
