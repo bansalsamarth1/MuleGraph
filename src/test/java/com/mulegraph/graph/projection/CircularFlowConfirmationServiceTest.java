@@ -37,9 +37,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 @SpringBootTest(
     webEnvironment = SpringBootTest.WebEnvironment.NONE,
     properties = {
-        "spring.kafka.streams.state.dir=/tmp/kafka-streams-${random.uuid}"
-    }
-)
+        "spring.kafka.streams.state.dir=/tmp/kafka-streams-${random.uuid}",
+        "circular-flow.amount-tolerance-percent=10",
+        "spring.kafka.producer.value-serializer=org.springframework.kafka.support.serializer.JsonSerializer"
+    })
 @ActiveProfiles("graph-projector")
 @Testcontainers
 class CircularFlowConfirmationServiceTest {
@@ -149,13 +150,7 @@ class CircularFlowConfirmationServiceTest {
                 t3
         );
 
-        String jsonPayload = objectMapper.writeValueAsString(tx);
-        org.springframework.messaging.Message<String> message = org.springframework.messaging.support.MessageBuilder
-                .withPayload(jsonPayload)
-                .setHeader(org.springframework.kafka.support.KafkaHeaders.TOPIC, "transactions.validated")
-                .setHeader("__TypeId__", InternalTransactionEvent.class.getName().getBytes(java.nio.charset.StandardCharsets.UTF_8))
-                .build();
-        kafkaTemplate.send(message);
+        kafkaTemplate.send("transactions.validated", tx);
 
         ConsumerRecord<String, AlertEvent> record = KafkaTestUtils.getSingleRecord(consumer, "fraud.alerts", Duration.ofSeconds(10));
         assertThat(record).isNotNull();

@@ -33,7 +33,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 @SpringBootTest(
     webEnvironment = SpringBootTest.WebEnvironment.NONE,
     properties = {
-        "spring.kafka.streams.state.dir=/tmp/kafka-streams-${random.uuid}"
+        "spring.kafka.streams.state.dir=/tmp/kafka-streams-${random.uuid}",
+        "spring.kafka.producer.value-serializer=org.springframework.kafka.support.serializer.JsonSerializer"
     }
 )
 @ActiveProfiles("graph-projector")
@@ -106,13 +107,7 @@ class GraphProjectorKafkaIntegrationTest {
         event.setOccurredAt(Instant.now());
         event.setIngestedAt(Instant.now());
         
-        String jsonPayload = objectMapper.writeValueAsString(event);
-        org.springframework.messaging.Message<String> message = org.springframework.messaging.support.MessageBuilder
-                .withPayload(jsonPayload)
-                .setHeader(org.springframework.kafka.support.KafkaHeaders.TOPIC, "graph.updates")
-                .setHeader("__TypeId__", GraphUpdateEvent.class.getName().getBytes(java.nio.charset.StandardCharsets.UTF_8))
-                .build();
-        kafkaTemplate.send(message);
+        kafkaTemplate.send("graph.updates", event);
 
         // Verify it doesn't end up in DLT
         try {
