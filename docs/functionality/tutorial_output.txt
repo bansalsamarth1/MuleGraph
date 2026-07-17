@@ -1,0 +1,61 @@
+====================================================
+ MULEGRAPH: CORE FUNCTIONALITIES TUTORIAL & OUTPUT
+====================================================
+
+>>> FUNCTIONALITY 1: GRAPH PROJECTION <<<
+SCENARIO: A valid transaction enters the system.
+[INPUT] Kafka Topic 'transactions.validated' receives:
+{
+  "amountMinor" : 50000,
+  "sourceAccountId" : "ACC-A",
+  "destinationAccountId" : "ACC-B",
+  "transactionId" : "tx-9999",
+  "occurredAt" : "2026-07-17T20:27:22.362153Z",
+  "ipHash" : "192.168.1.55",
+  "deviceId" : "iPhone-14",
+  "currency" : "USD"
+}
+
+[OUTPUT] GraphProjector executes Cypher and logs to Neo4j:
+[Neo4j-Log] MERGE Node (Account {id: 'ACC-A'})
+[Neo4j-Log] MERGE Node (Account {id: 'ACC-B'})
+[Neo4j-Log] MERGE Relationship (ACC-A)-[:TRANSFERRED_TO {amount: 500.00}]->(ACC-B)
+[Neo4j-Log] MERGE Node (Device {id: 'iPhone-14'})
+[Neo4j-Log] MERGE Relationship (ACC-A)-[:LOGGED_IN_FROM]->(Device)
+----------------------------------------------------
+
+>>> FUNCTIONALITY 2: CIRCULAR FLOW (MONEY LAUNDERING) <<<
+SCENARIO: 'ACC-C' transfers money back to 'ACC-A', completing a cycle: A -> B -> C -> A.
+[INPUT] Transaction C -> A arrives at time 2026-07-17T20:27:25.949680Z
+[OUTPUT] CircularFlowConfirmationService detects the cycle and emits to 'fraud.alerts':
+{
+  "involvedAccounts" : [ "ACC-A", "ACC-B", "ACC-C" ],
+  "sourceAccountId" : "ACC-C",
+  "involvedTransactions" : [ "tx-001", "tx-002", "tx-003" ],
+  "ruleName" : "CIRCULAR_FLOW",
+  "alertId" : "078a3a5d-f5b9-4e67-8f17-e78aa45f8856",
+  "generatedAt" : "2026-07-17T20:27:27.459419Z",
+  "status" : "OPEN",
+  "deduplicationKey" : "CIRCULAR_FLOW_ACC-A_ACC-B_ACC-C"
+}
+
+----------------------------------------------------
+
+>>> FUNCTIONALITY 3: SHARED DEVICE (ACCOUNT TAKEOVER) <<<
+SCENARIO: 3 different accounts transfer money using the EXACT same Device ID within 60 seconds.
+[INPUT] ACC-100, ACC-200, and ACC-300 all use device 'Hacker-MacBook'.
+[OUTPUT] Kafka Streams 'SharedDeviceTopology' triggers and emits to 'fraud.alerts':
+{
+  "involvedAccounts" : [ "ACC-100", "ACC-200", "ACC-300" ],
+  "sourceAccountId" : "ACC-300",
+  "involvedTransactions" : [ "tx-901", "tx-902", "tx-903" ],
+  "ruleName" : "SHARED_DEVICE",
+  "alertId" : "be789f4e-a1c4-4a3a-b407-e537eab9e868",
+  "generatedAt" : "2026-07-17T20:27:30.995222Z",
+  "status" : "OPEN",
+  "deduplicationKey" : "SHARED_DEVICE_Hacker-MacBook_ACC-100_ACC-200_ACC-300"
+}
+
+====================================================
+ TUTORIAL COMPLETE. You can copy this output!
+====================================================
